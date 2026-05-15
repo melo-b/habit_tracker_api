@@ -16,10 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView  # This is the line that was missing!
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView # Add these imports
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
+    # Redirect root URL to the Swagger UI
+    path('', RedirectView.as_view(url='/api/docs/', permanent=False), name='api_docs_redirect'),
+    
     path('admin/', admin.site.urls),
     
     # JWT Authentication Endpoints
