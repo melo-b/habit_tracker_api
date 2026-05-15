@@ -52,5 +52,11 @@ jobs:
 
     # 6. Run the Pytest suite
     - name: Run Tests with Pytest
+      env:
+        SECRET_KEY: "dummy-secret-key-for-ci-testing"
+        DEBUG: "True"
+        DB_NAME: "habit_tracker_db"
+        DB_USER: "postgres"
+        DB_PASSWORD: "yourpassword"
       run: |
         pytest
