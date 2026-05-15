@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import serializers
 from .models import Habit, HabitLog
 
@@ -5,6 +6,11 @@ class HabitLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = HabitLog
         fields = ['id', 'habit', 'date', 'completed', 'notes']
+
+    def validate_date(self, value):
+        if value > datetime.date.today():
+               raise serializers.ValidationError("You cannot log a habit for a future date.")
+        return value
 
 class HabitSerializer(serializers.ModelSerializer):
     # This allows us to nest the logs inside the habit payload (read-only)
