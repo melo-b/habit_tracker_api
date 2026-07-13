@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -175,3 +176,22 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", # Standard React port
     "http://localhost:5173", # Standard Vite/Vue port
 ]
+
+
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+# Initialize Sentry Monitoring (Only if the DSN is provided)
+SENTRY_DSN = os.environ.get('SENTRY_DSN')
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        # Set traces_sample_rate to 1.0 to capture 100% of transactions for performance monitoring.
+        # In a high-traffic production app, you would lower this to 0.1 or 0.2.
+        traces_sample_rate=1.0,
+        # If you want to associate errors with specific users
+        send_default_pii=True
+    )
