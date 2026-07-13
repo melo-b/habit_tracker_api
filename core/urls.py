@@ -21,17 +21,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
-# A temporary function to test Sentry
-def trigger_error(request):
-    division_by_zero = 1 / 0
+
 
 
 urlpatterns = [
     # Redirect root URL to the Swagger UI
     path('', RedirectView.as_view(url='/api/docs/', permanent=False), name='api_docs_redirect'),
     
-# The Sentry Test URL
-    path('sentry-debug/', trigger_error),
+
 
 
     path('admin/', admin.site.urls),
