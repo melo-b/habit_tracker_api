@@ -18,5 +18,5 @@ COPY . /app/
 # Expose port 8000 for external access
 EXPOSE 8000
 
-# Start the Gunicorn server
-CMD ["gunicorn", "core.wsgi", "--bind", "0.0.0.0:8000"]
+# Run migrations, attempt to create superuser, and start the Gunicorn server
+CMD ["sh", "-c", "python manage.py migrate && python manage.py createsuperuser --noinput || true && gunicorn core.wsgi --bind 0.0.0.0:8000"]
