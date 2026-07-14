@@ -33,7 +33,16 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # DEBUG will be True only if the env variable exactly matches 'True'
 DEBUG = os.environ.get('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    # Render will inject the live URL, otherwise it defaults to localhost for local testing
+    RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+
+    if RENDER_EXTERNAL_HOSTNAME:
+        ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME]
+    else:
+        ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+]
 
 
 # Application definition
