@@ -81,10 +81,11 @@ Swagger UI: http://localhost:8000/api/docs/
 
 ## 🧪 Testing
 
-The test suite uses an isolated temporary database, ensuring your local data is never affected. Run the test suite directly inside the Docker container:
+The test suite uses an isolated temporary database, ensuring your local data is never affected. Dependencies are managed with [uv](https://docs.astral.sh/uv/). With the `db` container running (`docker compose up -d db`) and `DB_HOST=localhost` in your `.env`:
 
 ```bash
-docker compose exec web pytest
+uv sync
+uv run pytest
 ```
 
 
