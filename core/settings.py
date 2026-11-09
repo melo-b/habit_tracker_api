@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 
@@ -26,8 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# Replace hardcoded values with os.environ.get()
 SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured("The SECRET_KEY environment variable is required.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG will be True only if the env variable exactly matches 'True'
@@ -165,8 +167,9 @@ REST_FRAMEWORK = {
            'rest_framework.throttling.UserRateThrottle'
        ],
     'DEFAULT_THROTTLE_RATES': {
-           'anon': '100/day',   # Unauthenticated users (e.g., trying to spam login)
-           'user': '1000/day'   # Authenticated users
+           'anon': '100/day',   # Unauthenticated users
+           'user': '1000/day',  # Authenticated users
+           'auth': '20/hour',   # Login / token refresh, per client (brute-force protection)
     }
 }
 
@@ -195,9 +198,8 @@ if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
-        # Set traces_sample_rate to 1.0 to capture 100% of transactions for performance monitoring.
-        # In a high-traffic production app, you would lower this to 0.1 or 0.2.
-        traces_sample_rate=1.0,
-        # If you want to associate errors with specific users
-        send_default_pii=True
+        # Share of transactions traced for performance monitoring (0.0 - 1.0)
+        traces_sample_rate=float(os.environ.get('SENTRY_TRACES_SAMPLE_RATE', '0.1')),
+        # Off by default: attaches user IPs/cookies to events when enabled
+        send_default_pii=os.environ.get('SENTRY_SEND_PII') == 'True',
     )

@@ -7,6 +7,13 @@ class HabitLogSerializer(serializers.ModelSerializer):
         model = HabitLog
         fields = ['id', 'habit', 'date', 'completed', 'notes']
 
+    def validate_habit(self, habit):
+        # Only admins may log against habits they don't own
+        user = self.context['request'].user
+        if user.role != 'admin' and habit.user != user:
+            raise serializers.ValidationError("Invalid habit.")
+        return habit
+
     def validate_date(self, value):
         if value > datetime.date.today():
                raise serializers.ValidationError("You cannot log a habit for a future date.")
