@@ -1,16 +1,23 @@
 # Use the official, lightweight Python 3.12 image
 FROM python:3.12-slim
 
+# Bring in uv (pinned) from the official image
+COPY --from=ghcr.io/astral-sh/uv:0.13.6 /uv /uvx /bin/
+
 # Prevent Python from writing .pyc files and force stdout/stderr to be unbuffered
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+# Run installed tools straight from the project virtualenv
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements file and install dependencies
-COPY requirements.txt /app/
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install dependencies first (cached unless pyproject.toml / uv.lock change)
+COPY pyproject.toml uv.lock .python-version /app/
+RUN uv sync --frozen --no-dev --no-install-project
 
 # Copy the rest of the application code
 COPY . /app/
