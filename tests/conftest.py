@@ -1,8 +1,15 @@
 import pytest
+from django.core.cache import cache
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
+
+
+@pytest.fixture(autouse=True)
+def clear_throttle_cache():
+    # Throttle counters live in the cache; reset so tests don't affect each other
+    cache.clear()
 
 
 @pytest.fixture
