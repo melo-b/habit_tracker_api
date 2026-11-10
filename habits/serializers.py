@@ -16,6 +16,25 @@ class HabitLogSerializer(serializers.ModelSerializer):
         return habit
 
 
+class HabitStatsQuerySerializer(serializers.Serializer):
+    days = serializers.IntegerField(min_value=1, max_value=365, default=30)
+
+
+class HabitStatsSerializer(serializers.Serializer):
+    frequency = serializers.CharField()
+    window_days = serializers.IntegerField()
+    current_streak = serializers.IntegerField()
+    longest_streak = serializers.IntegerField()
+    total_completions = serializers.IntegerField()
+    completion_rate = serializers.FloatField()
+    last_completed = serializers.DateField(allow_null=True)
+
+
+class LogTodaySerializer(serializers.Serializer):
+    completed = serializers.BooleanField(default=True)
+    notes = serializers.CharField(required=False, allow_blank=True)
+
+
 class HabitSerializer(serializers.ModelSerializer):
     # This allows us to nest the logs inside the habit payload (read-only)
     logs = HabitLogSerializer(many=True, read_only=True)
