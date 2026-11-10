@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView  # This is the line that was missing!
-from accounts.views import ThrottledTokenObtainPairView, ThrottledTokenRefreshView
+from accounts.views import RegisterView, ThrottledTokenObtainPairView, ThrottledTokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
@@ -37,6 +37,8 @@ urlpatterns = [
     path('api/token/', ThrottledTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', ThrottledTokenRefreshView.as_view(), name='token_refresh'),
     
+    path('api/auth/register/', RegisterView.as_view(), name='register'),
+
     # OpenAPI Schema and Swagger UI
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

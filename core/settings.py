@@ -170,6 +170,7 @@ REST_FRAMEWORK = {
            'anon': '100/day',   # Unauthenticated users
            'user': '1000/day',  # Authenticated users
            'auth': '20/hour',   # Login / token refresh, per client (brute-force protection)
+           'register': '10/hour',  # Account creation, per client (spam protection)
     }
 }
 
