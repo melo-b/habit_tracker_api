@@ -21,4 +21,4 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # Self-registered accounts are always standard users; role is never client-supplied
-        return User.objects.create_user(role='user',**validated_data)
+        return User.objects.create_user(role=User.Role.USER, **validated_data)
