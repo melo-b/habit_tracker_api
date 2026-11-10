@@ -31,5 +31,13 @@ package = false
 DJANGO_SETTINGS_MODULE = "core.settings"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
+[tool.coverage.run]
+source = ["accounts", "habits", "core"]
+omit = ["*/migrations/*", "core/asgi.py", "core/wsgi.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
 [tool.ruff]
 extend-exclude = ["migrations"]
