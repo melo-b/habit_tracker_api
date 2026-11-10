@@ -4,34 +4,42 @@ from .models import Habit, HabitLog
 from .serializers import HabitSerializer, HabitLogSerializer
 from .permissions import IsOwnerAdminOrStaffReadOnly
 
-class HabitViewSet(viewsets.ModelViewSet):
+
+class OwnerScopedQuerySetMixin:
+    """List-level visibility: admins/staff see everything, users only what they own."""
+    owner_lookup = 'user'  # ORM path from the model to its owning user
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if getattr(self, 'swagger_fake_view', False):  # schema generation has no real user
+            return queryset.none()
+        user = self.request.user
+        if user.is_privileged:
+            return queryset
+        return queryset.filter(**{self.owner_lookup: user})
+
+
+class HabitViewSet(OwnerScopedQuerySetMixin, viewsets.ModelViewSet):
+    queryset = Habit.objects.prefetch_related('logs')
     serializer_class = HabitSerializer
     permission_classes = [IsAuthenticated, IsOwnerAdminOrStaffReadOnly]
-    
-    # Attach built-in DRF Filters
+
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'description']
     ordering_fields = ['created_at', 'name']
-
-    def get_queryset(self):
-        # List-level visibility: Admins/Staff see all, Users see only theirs
-        user = self.request.user
-        if user.role in ['admin', 'staff']:
-            return Habit.objects.all()
-        return Habit.objects.filter(user=user)
+    ordering = ['-created_at', 'id']  # stable default so pagination is deterministic
 
     def perform_create(self, serializer):
         # Auto-assign the logged-in user to the habit upon creation
         serializer.save(user=self.request.user)
 
-class HabitLogViewSet(viewsets.ModelViewSet):
+
+class HabitLogViewSet(OwnerScopedQuerySetMixin, viewsets.ModelViewSet):
+    queryset = HabitLog.objects.select_related('habit__user')
     serializer_class = HabitLogSerializer
     permission_classes = [IsAuthenticated, IsOwnerAdminOrStaffReadOnly]
+    owner_lookup = 'habit__user'
+
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['date']
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role in ['admin', 'staff']:
-            return HabitLog.objects.all()
-        return HabitLog.objects.filter(habit__user=user)
+    ordering = ['-date', 'id']

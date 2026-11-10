@@ -1,6 +1,5 @@
-import datetime
-
 import pytest
+from django.utils import timezone
 from habits.models import Habit, HabitLog
 
 HABITS_URL = '/api/habits/'
@@ -199,7 +198,7 @@ def test_ordering_by_name(client_for, alice):
 @pytest.mark.django_db
 def test_habit_includes_nested_logs(client_for, alice):
     habit = Habit.objects.create(user=alice, name='Meditate')
-    HabitLog.objects.create(habit=habit, date=datetime.date.today(), completed=True)
+    HabitLog.objects.create(habit=habit, date=timezone.localdate(), completed=True)
 
     response = client_for(alice).get(detail(habit))
 
@@ -210,6 +209,6 @@ def test_habit_includes_nested_logs(client_for, alice):
 @pytest.mark.django_db
 def test_deleting_habit_deletes_its_logs(client_for, alice):
     habit = Habit.objects.create(user=alice, name='Meditate')
-    HabitLog.objects.create(habit=habit, date=datetime.date.today())
+    HabitLog.objects.create(habit=habit, date=timezone.localdate())
     client_for(alice).delete(detail(habit))
     assert HabitLog.objects.count() == 0

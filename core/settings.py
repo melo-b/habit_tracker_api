@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
+
+import sentry_sdk
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
+from sentry_sdk.integrations.django import DjangoIntegration
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -174,8 +178,6 @@ REST_FRAMEWORK = {
     }
 }
 
-from datetime import timedelta
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -188,9 +190,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
-
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 
 # Initialize Sentry Monitoring (Only if the DSN is provided)
 SENTRY_DSN = os.environ.get('SENTRY_DSN')

@@ -42,3 +42,24 @@ def test_same_date_allowed_for_different_habits(make_user):
     HabitLog.objects.create(habit=Habit.objects.create(user=user, name='A'), date=day)
     HabitLog.objects.create(habit=Habit.objects.create(user=user, name='B'), date=day)
     assert HabitLog.objects.count() == 2
+
+
+@pytest.mark.django_db
+def test_model_validation_rejects_future_date(make_user):
+    from django.core.exceptions import ValidationError
+    from django.utils import timezone
+    habit = Habit.objects.create(user=make_user('alice'), name='Run')
+    log = HabitLog(habit=habit, date=timezone.localdate() + datetime.timedelta(days=1))
+    with pytest.raises(ValidationError) as exc:
+        log.full_clean()
+    assert 'date' in exc.value.message_dict
+
+
+@pytest.mark.parametrize('role, privileged, admin', [
+    ('user', False, False), ('staff', True, False), ('admin', True, True),
+])
+@pytest.mark.django_db
+def test_role_helpers(make_user, role, privileged, admin):
+    user = make_user('someone', role=role)
+    assert user.is_privileged is privileged
+    assert user.is_admin is admin

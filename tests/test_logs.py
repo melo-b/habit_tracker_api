@@ -1,10 +1,11 @@
 import datetime
 
 import pytest
+from django.utils import timezone
 from habits.models import Habit, HabitLog
 
 LOGS_URL = '/api/logs/'
-TODAY = datetime.date.today()
+TODAY = timezone.localdate()
 
 
 @pytest.fixture

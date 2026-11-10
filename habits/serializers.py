@@ -1,8 +1,9 @@
-import datetime
 from rest_framework import serializers
 from .models import Habit, HabitLog
 
+
 class HabitLogSerializer(serializers.ModelSerializer):
+    # The future-date rule lives on the model field, so it applies here and in the admin
     class Meta:
         model = HabitLog
         fields = ['id', 'habit', 'date', 'completed', 'notes']
@@ -10,14 +11,10 @@ class HabitLogSerializer(serializers.ModelSerializer):
     def validate_habit(self, habit):
         # Only admins may log against habits they don't own
         user = self.context['request'].user
-        if user.role != 'admin' and habit.user != user:
+        if not user.is_admin and habit.owner != user:
             raise serializers.ValidationError("Invalid habit.")
         return habit
 
-    def validate_date(self, value):
-        if value > datetime.date.today():
-               raise serializers.ValidationError("You cannot log a habit for a future date.")
-        return value
 
 class HabitSerializer(serializers.ModelSerializer):
     # This allows us to nest the logs inside the habit payload (read-only)
